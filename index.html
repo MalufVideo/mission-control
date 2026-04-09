@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nelson Maluf | Mission Control</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+--bg-primary:#0a0e1a;
+--bg-secondary:#0f1629;
+--bg-tertiary:#141b2d;
+--glass-bg:rgba(20,27,45,0.65);
+--glass-border:rgba(255,255,255,0.06);
+--glass-shadow:0 8px 32px rgba(0,0,0,0.4);
+--text-primary:#e8ecf4;
+--text-secondary:#8b95a8;
+--text-muted:#5a6478;
+--accent-primary:#00d4ff;
+--accent-secondary:#7b61ff;
+--accent-tertiary:#00ff88;
+--accent-warm:#ff6b35;
+--status-healthy:#00ff88;
+--status-warning:#ffbe0b;
+--status-error:#ff3860;
+--status-offline:#5a6478;
+--radius-sm:8px;
+--radius-md:12px;
+--radius-lg:16px;
+--radius-xl:24px;
+--font-main:'Inter',system-ui,-apple-system,sans-serif;
+--font-mono:'JetBrains Mono',monospace;
+}
+html{font-size:16px;scroll-behavior:smooth}
+body{
+font-family:var(--font-main);
+background:var(--bg-primary);
+color:var(--text-primary);
+min-height:100vh;
+overflow-x:hidden;
+line-height:1.5;
+}
+body::before{
+content:'';position:fixed;top:0;left:0;width:100%;height:100%;
+background:
+radial-gradient(ellipse 80% 50% at 20% 0%,rgba(0,212,255,0.08),transparent),
+radial-gradient(ellipse 60% 40% at 80% 10%,rgba(123,97,255,0.06),transparent),
+radial-gradient(ellipse 50% 30% at 50% 90%,rgba(0,255,136,0.04),transparent);
+pointer-events:none;z-index:0;
+}
+.glass{
+background:var(--glass-bg);
+backdrop-filter:blur(20px);
+-webkit-backdrop-filter:blur(20px);
+border:1px solid var(--glass-border);
+border-radius:var(--radius-lg);
+box-shadow:var(--glass-shadow);
+}
+.container{max-width:1440px;margin:0 auto;padding:0 24px}
+
+/* HEADER */
+.header{
+position:sticky;top:0;z-index:100;
+padding:20px 0;
+background:rgba(10,14,26,0.85);
+backdrop-filter:blur(24px);
+-webkit-backdrop-filter:blur(24px);
+border-bottom:1px solid var(--glass-border);
+}
+.header-inner{display:flex;flex-direction:column;gap:8px}
+.header-top{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+.header-brand{display:flex;align-items:center;gap:14px}
+.logo-icon{
+width:42px;height:42px;
+background:linear-gradient(135deg,var(--accent-primary),var(--accent-secondary));
+border-radius:var(--radius-md);
+display:flex;align-items:center;justify-content:center;
+font-size:20px;font-weight:900;color:var(--bg-primary);
+position:relative;overflow:hidden;
+}
+.logo-icon::after{
+content:'';position:absolute;top:-50%;right:-50%;width:100%;height:100%;
+background:linear-gradient(45deg,transparent,rgba(255,255,255,0.2),transparent);
+transform:rotate(45deg);
+animation:logoShine 3s ease-in-out infinite;
+}
+@keyframes logoShine{0%,100%{transform:rotate(45deg) translateX(-100%)}50%{transform:rotate(45deg) translateX(100%)}}
+.header-title h1{font-size:1.5rem;font-weight:800;letter-spacing:-0.5px;background:linear-gradient(135deg,#fff,#c0c8d8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.header-title span{font-size:0.75rem;color:var(--text-secondary);font-weight:500;letter-spacing:2px;text-transform:uppercase}
+.header-clock{text-align:right}
+.clock-time{font-family:var(--font-mono);font-size:1.75rem;font-weight:700;color:var(--accent-primary);letter-spacing:1px}
+.clock-date{font-size:0.8rem;color:var(--text-secondary);font-weight:500;margin-top:2px}
+.clock-tz{font-size:0.65rem;color:var(--text-muted);font-family:var(--font-mono);margin-top:1px}
+
+/* STATS GRID */
+.stats-section{padding:28px 0}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.stat-card{
+padding:22px 20px;
+display:flex;flex-direction:column;gap:6px;
+transition:transform 0.2s ease,box-shadow 0.2s ease;
+position:relative;overflow:hidden;
+}
+.stat-card:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(0,0,0,0.5)}
+.stat-card::before{
+content:'';position:absolute;top:0;left:0;right:0;height:2px;
+border-radius:2px 2px 0 0;
+}
+.stat-card:nth-child(1)::before{background:linear-gradient(90deg,var(--accent-primary),var(--accent-secondary))}
+.stat-card:nth-child(2)::before{background:linear-gradient(90deg,var(--status-healthy),#00cc6a)}
+.stat-card:nth-child(3)::before{background:linear-gradient(90deg,var(--accent-secondary),var(--accent-warm))}
+.stat-card:nth-child(4)::before{background:linear-gradient(90deg,var(--accent-warm),var(--accent-primary))}
+.stat-label{font-size:0.7rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--text-muted);font-weight:600}
+.stat-value{font-size:2rem;font-weight:800;letter-spacing:-1px;line-height:1.1}
+.stat-card:nth-child(1) .stat-value{color:var(--accent-primary)}
+.stat-card:nth-child(2) .stat-value{color:var(--status-healthy)}
+.stat-card:nth-child(3) .stat-value{color:var(--accent-secondary)}
+.stat-card:nth-child(4) .stat-value{color:var(--accent-warm)}
+.stat-detail{font-size:0.78rem;color:var(--text-secondary);font-weight:400}
+
+/* REFRESH INDICATOR */
+.refresh-bar{display:flex;align-items:center;gap:10px;padding:8px 0}
+.refresh-dot{
+width:8px;height:8px;border-radius:50%;background:var(--status-healthy);
+box-shadow:0 0 8px var(--status-healthy);
+animation:pulse 2s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 8px var(--status-healthy)}50%{opacity:0.5;box-shadow:0 0 16px var(--status-healthy)}}
+.refresh-text{font-size:0.72rem;color:var(--text-muted);font-family:var(--font-mono)}
+.refresh-timer{font-size:0.72rem;color:var(--text-secondary);font-family:var(--font-mono);font-weight:500}
+.progress-bar{height:3px;background:var(--bg-tertiary);border-radius:3px;flex:1;max-width:200px;overflow:hidden}
+.progress-fill{height:100%;width:100%;background:linear-gradient(90deg,var(--accent-primary),var(--accent-secondary));border-radius:3px;transition:width 1s linear}
+
+/* SITE GROUPS */
+.sites-section{padding:8px 0 30px}
+.site-group{margin-bottom:32px}
+.group-header{display:flex;align-items:center;gap:12px;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--glass-border)}
+.group-badge{
+display:inline-flex;align-items:center;gap:6px;
+padding:6px 16px;border-radius:50px;font-size:0.75rem;font-weight:600;
+letter-spacing:0.5px;
+}
+.group-badge.onav{background:rgba(0,212,255,0.1);color:var(--accent-primary);border:1px solid rgba(0,212,255,0.2)}
+.group-badge.nelson{background:rgba(123,97,255,0.1);color:var(--accent-secondary);border:1px solid rgba(123,97,255,0.2)}
+.group-badge.internal{background:rgba(255,187,11,0.1);color:var(--accent-warm);border:1px solid rgba(255,187,11,0.2)}
+.group-count{font-size:0.8rem;color:var(--text-muted);font-weight:500}
+
+/* SITE CARDS GRID */
+.sites-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px}
+.site-card{
+padding:20px;position:relative;overflow:hidden;
+transition:all 0.3s ease;
+animation:cardFadeIn 0.5s ease both;
+}
+@keyframes cardFadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.site-card:nth-child(1){animation-delay:0.05s}
+.site-card:nth-child(2){animation-delay:0.1s}
+.site-card:nth-child(3){animation-delay:0.15s}
+.site-card:nth-child(4){animation-delay:0.2s}
+.site-card:nth-child(5){animation-delay:0.25s}
+.site-card:nth-child(6){animation-delay:0.3s}
+.site-card:hover{border-color:rgba(255,255,255,0.12);box-shadow:0 12px 40px rgba(0,0,0,0.5)}
+.site-card::before{
+content:'';position:absolute;top:0;left:0;width:3px;height:100%;border-radius:3px;
+}
+.site-card.healthy::before{background:var(--status-healthy)}
+.site-card-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px}
+.site-name{font-size:1.05rem;font-weight:700;letter-spacing:-0.3px}
+.site-name a{color:var(--text-primary);text-decoration:none;transition:color 0.2s}
+.site-name a:hover{color:var(--accent-primary)}
+.status-badge{
+padding:4px 12px;border-radius:50px;font-size:0.68rem;font-weight:700;
+letter-spacing:0.5px;text-transform:uppercase;
+display:flex;align-items:center;gap:5px;white-space:nowrap;
+}
+.status-badge.healthy{background:rgba(0,255,136,0.1);color:var(--status-healthy);border:1px solid rgba(0,255,136,0.25)}
+.status-badge .dot{width:6px;height:6px;border-radius:50%;background:currentColor}
+.status-badge.healthy .dot{animation:pulse 2s ease-in-out infinite}
+.site-url{
+display:inline-flex;align-items:center;gap:6px;
+padding:8px 14px;background:rgba(255,255,255,0.03);
+border:1px solid rgba(255,255,255,0.06);border-radius:var(--radius-sm);
+font-family:var(--font-mono);font-size:0.82rem;color:var(--accent-primary);
+text-decoration:none;margin-bottom:10px;transition:all 0.2s;
+width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.site-url:hover{background:rgba(0,212,255,0.08);border-color:rgba(0,212,255,0.2)}
+.site-url .ext-link{font-size:0.7rem;opacity:0.6;margin-left:auto;flex-shrink:0}
+.site-meta{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.git-link{
+display:inline-flex;align-items:center;gap:6px;
+padding:6px 12px;border-radius:var(--radius-sm);
+font-size:0.75rem;color:var(--text-secondary);text-decoration:none;
+background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);
+transition:all 0.2s;
+}
+.git-link:hover{background:rgba(255,255,255,0.08);color:var(--text-primary);border-color:rgba(255,255,255,0.12)}
+.git-link svg{flex-shrink:0}
+.site-type{
+font-size:0.65rem;padding:3px 8px;border-radius:4px;
+background:rgba(255,255,255,0.04);color:var(--text-muted);
+font-weight:500;text-transform:uppercase;letter-spacing:0.5px;
+}
+.uptime-info{font-size:0.72rem;color:var(--text-muted);font-family:var(--font-mono)}
+
+/* QUICK ACTIONS */
+.actions-section{padding:10px 0 40px}
+.actions-header{font-size:1.15rem;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:10px}
+.actions-header svg{color:var(--accent-primary)}
+.actions-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+.action-btn{
+display:flex;align-items:center;justify-content:center;gap:8px;
+padding:14px 16px;border-radius:var(--radius-md);
+background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);
+color:var(--text-primary);text-decoration:none;
+font-size:0.85rem;font-weight:600;cursor:pointer;
+transition:all 0.2s ease;text-align:center;
+}
+.action-btn:hover{background:rgba(0,212,255,0.1);border-color:rgba(0,212,255,0.25);color:var(--accent-primary);transform:translateY(-1px)}
+.action-btn svg{flex-shrink:0}
+
+/* FOOTER */
+.footer{
+padding:20px 0;text-align:center;
+border-top:1px solid var(--glass-border);
+margin-top:20px;
+}
+.footer p{font-size:0.75rem;color:var(--text-muted)}
+.footer span{color:var(--accent-primary)}
+
+/* RESPONSIVE */
+@media(max-width:1024px){
+.stats-grid{grid-template-columns:repeat(2,1fr)}
+.sites-grid{grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}
+}
+@media(max-width:768px){
+.container{padding:0 16px}
+.header{padding:14px 0}
+.header-top{flex-direction:column;align-items:flex-start;gap:14px}
+.header-clock{text-align:left}
+.clock-time{font-size:1.4rem}
+.stats-grid{grid-template-columns:repeat(2,1fr);gap:10px}
+.stat-card{padding:16px}
+.stat-value{font-size:1.6rem}
+.sites-grid{grid-template-columns:1fr}
+.actions-grid{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:480px){
+.stats-grid{grid-template-columns:1fr 1fr}
+.stat-card{padding:14px}
+.stat-value{font-size:1.4rem}
+.actions-grid{grid-template-columns:1fr}
+.header-title h1{font-size:1.25rem}
+}
+
+/* REFRESH FLASH */
+@keyframes refreshFlash{
+0%{border-color:rgba(0,212,255,0.6);box-shadow:0 0 20px rgba(0,212,255,0.1)}
+100%{border-color:var(--glass-border);box-shadow:var(--glass-shadow)}
+}
+.refreshing{animation:refreshFlash 1s ease-out}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:8px}
+::-webkit-scrollbar-track{background:var(--bg-primary)}
+::-webkit-scrollbar-thumb{background:var(--bg-tertiary);border-radius:4px}
+::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,0.1)}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+<div class="container">
+<div class="header-inner">
+<div class="header-top">
+<div class="header-brand">
+<div class="logo-icon">NM</div>
+<div class="header-title">
+<span>Operations Dashboard</span>
+<h1>Mission Control</h1>
+</div>
+</div>
+<div class="header-clock">
+<div class="clock-time" id="clock">--:--:--</div>
+<div class="clock-date" id="clockDate">--- --, ----</div>
+<div class="clock-tz">America/Sao Paulo (BRT)</div>
+</div>
+</div>
+<div class="refresh-bar">
+<div class="refresh-dot" id="refreshDot"></div>
+<span class="refresh-text">Auto-refresh active</span>
+<div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+<span class="refresh-timer" id="refreshTimer">30s</span>
+</div>
+</div>
+</div>
+</header>
+
+<main class="container">
+
+<!-- STATS -->
+<section class="stats-section">
+<div class="stats-grid">
+<div class="stat-card glass">
+<div class="stat-label">Total Sites</div>
+<div class="stat-value" id="statSites">10</div>
+<div class="stat-detail">across all domains</div>
+</div>
+<div class="stat-card glass">
+<div class="stat-label">System Health</div>
+<div class="stat-value" id="statHealth">All Healthy</div>
+<div class="stat-detail">0 issues detected</div>
+</div>
+<div class="stat-card glass">
+<div class="stat-label">Active Projects</div>
+<div class="stat-value" id="statProjects">21</div>
+<div class="stat-detail">in development</div>
+</div>
+<div class="stat-card glass">
+<div class="stat-label">Active Domains</div>
+<div class="stat-value">2</div>
+<div class="stat-detail">onav.com.br + nelsonoliveira.com</div>
+</div>
+</div>
+</section>
+
+<!-- SITES -->
+<section class="sites-section">
+
+<!-- ONAV.COM.BR GROUP -->
+<div class="site-group">
+<div class="group-header">
+<span class="group-badge onav">
+<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+onav.com.br
+</span>
+<span class="group-count">5 sites</span>
+</div>
+<div class="sites-grid" id="onavSites"></div>
+</div>
+
+<!-- NELSONOLIVEIRA.COM GROUP -->
+<div class="site-group">
+<div class="group-header">
+<span class="group-badge nelson">
+<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+nelsonoliveira.com
+</span>
+<span class="group-count">4 sites</span>
+</div>
+<div class="sites-grid" id="nelsonSites"></div>
+</div>
+
+<!-- INTERNAL GROUP -->
+<div class="site-group">
+<div class="group-header">
+<span class="group-badge internal">
+<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+Internal / Service
+</span>
+<span class="group-count">1 site</span>
+</div>
+<div class="sites-grid" id="internalSites"></div>
+</div>
+
+</section>
+
+<!-- QUICK ACTIONS -->
+<section class="actions-section">
+<div class="actions-header">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/></svg>
+Quick Actions
+</div>
+<div class="actions-grid" id="actionsGrid"></div>
+</section>
+
+</main>
+
+<!-- FOOTER -->
+<footer class="footer">
+<div class="container">
+<p>Coolify Mission Control &middot; &copy; <span id="footerYear"></span> <span>Nelson Maluf</span> &middot; Powered by Coolify</p>
+</div>
+</footer>
+
+<script>
+// ============ SITE DATA ============
+const SITES = {
+onav: [
+{ name:'Subframe', domain:'subframe.onav.com.br', repo:'MalufVideo/virtualprojection', type:'Application' },
+{ name:'Gemma Leadership', domain:'gemma.onav.com.br', repo:'MalufVideo/Gemma-leadership', type:'Application' },
+{ name:'Ipiranga Quote', domain:'ipiranga.onav.com.br', repo:'MalufVideo/ipiranga_quote', type:'Application' },
+{ name:'Galvao Bueno', domain:'gb.onav.com.br', repo:'MalufVideo/gb-public', type:'Application' },
+{ name:'NocoDB', domain:'nocodb.onav.com.br', repo:'Coolify Service', type:'Service' }
+],
+nelson: [
+{ name:'eFIFA Bubbles', domain:'bubbles.nelsonoliveira.com', repo:'MalufVideo/efifa_bubbles', type:'Application' },
+{ name:'eFIFA Rankings', domain:'rankings.nelsonoliveira.com', repo:'MalufVideo/efifa_rankings', type:'Application' },
+{ name:'Audio Reactive', domain:'reativo.nelsonoliveira.com', repo:'MalufVideo/reactive_audio', type:'Application' },
+{ name:'Scoreboard', domain:'scoreboard.nelsonoliveira.com', repo:'MalufVideo/scoreboard', type:'Application' }
+],
+internal: [
+{ name:'Resultado Disguise', domain:'internal', repo:'MalufVideo/resultado_disguise', type:'Internal' }
+]
+};
+
+const GITHUB_BASE = 'https://github.com/';
+
+// ============ RENDER SITES ============
+function renderSiteCard(site, isInternal) {
+const url = isInternal ? '#' : 'https://' + site.domain;
+const domainLabel = isInternal ? 'Internal / Local' : site.domain;
+const gitUrl = site.repo.includes('Service') ? 'https://github.com/coolify/coolify' : GITHUB_BASE + site.repo;
+const gitDisplay = site.repo === 'Coolify Service' ? 'coolify/coolify' : site.repo;
+const gitIcon = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>';
+return `
+<div class="site-card glass healthy" data-domain="${site.domain}">
+<div class="site-card-header">
+<div class="site-name"><a href="${url}" target="_blank" rel="noopener">${site.name}</a></div>
+<div class="status-badge healthy"><span class="dot"></span>Healthy</div>
+</div>
+<a class="site-url" href="${url}" target="_blank" rel="noopener" ${isInternal ? 'style="opacity:0.4;pointer-events:none"' : ''}>
+${domainLabel}
+${!isInternal ? '<span class="ext-link">&#8599;</span>' : ''}
+</a>
+<div class="site-meta">
+<a class="git-link" href="${gitUrl}" target="_blank" rel="noopener">
+${gitIcon}
+${gitDisplay}
+</a>
+<span class="site-type">${site.type}</span>
+<span class="uptime-info">99.9%</span>
+</div>
+</div>`;
+}
+
+function renderAllSites() {
+const onavEl = document.getElementById('onavSites');
+const nelsonEl = document.getElementById('nelsonSites');
+const internalEl = document.getElementById('internalSites');
+
+onavEl.innerHTML = SITES.onav.map(s => renderSiteCard(s, false)).join('');
+nelsonEl.innerHTML = SITES.nelson.map(s => renderSiteCard(s, false)).join('');
+internalEl.innerHTML = SITES.internal.map(s => renderSiteCard(s, true)).join('');
+
+// Quick actions
+const actionsEl = document.getElementById('actionsGrid');
+const allSites = [...SITES.onav, ...SITES.nelson, ...SITES.internal];
+actionsEl.innerHTML = allSites.map(s => {
+const url = s.domain === 'internal' ? '#' : 'https://' + s.domain;
+const btnIcon = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>';
+return `<a class="action-btn" href="${url}" target="_blank" rel="noopener" ${s.domain === 'internal' ? 'style="opacity:0.5;pointer-events:none"' : ''}>${s.name}${btnIcon}</a>`;
+}).join('');
+}
+
+// ============ LIVE CLOCK ============
+function updateClock() {
+const now = new Date();
+const options = { timeZone: 'America/Sao_Paulo' };
+
+const timeOpts = { ...options, hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
+const dateOpts = { ...options, weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+
+const timeStr = now.toLocaleTimeString('pt-BR', timeOpts);
+const dateStr = now.toLocaleDateString('pt-BR', dateOpts);
+
+document.getElementById('clock').textContent = timeStr;
+document.getElementById('clockDate').textContent = dateStr.charAt(0).toUpperCase() + dateStr.slice(1);
+}
+
+setInterval(updateClock, 1000);
+updateClock();
+
+// ============ AUTO-REFRESH SIMULATION ============
+let countdown = 30;
+const REFRESH_INTERVAL = 30;
+
+function updateProgress() {
+countdown--;
+if (countdown <= 0) {
+triggerRefresh();
+countdown = REFRESH_INTERVAL;
+}
+const pct = ((REFRESH_INTERVAL - countdown) / REFRESH_INTERVAL) * 100;
+document.getElementById('progressFill').style.width = pct + '%';
+document.getElementById('refreshTimer').textContent = countdown + 's';
+}
+
+function triggerRefresh() {
+const cards = document.querySelectorAll('.site-card');
+cards.forEach(card => {
+card.classList.add('refreshing');
+// Simulate slight latency flash
+setTimeout(() => card.classList.remove('refreshing'), 1000);
+});
+// Pulse the refresh dot
+const dot = document.getElementById('refreshDot');
+dot.style.background = 'var(--accent-primary)';
+dot.style.boxShadow = '0 0 12px var(--accent-primary)';
+setTimeout(() => {
+dot.style.background = 'var(--status-healthy)';
+dot.style.boxShadow = '0 0 8px var(--status-healthy)';
+}, 1200);
+}
+
+setInterval(updateProgress, 1000);
+
+// ============ COUNTER ANIMATION ============
+function animateCounter(el, target) {
+let current = 0;
+const step = Math.ceil(target / 30);
+const interval = setInterval(() => {
+current += step;
+if (current >= target) {
+current = target;
+clearInterval(interval);
+}
+el.textContent = current;
+}, 30);
+}
+
+function initCounters() {
+animateCounter(document.getElementById('statSites'), 10);
+animateCounter(document.getElementById('statProjects'), 21);
+}
+
+// ============ FOOTER YEAR ============
+document.getElementById('footerYear').textContent = new Date().getFullYear();
+
+// ============ INIT ============
+document.addEventListener('DOMContentLoaded', () => {
+renderAllSites();
+initCounters();
+});
+
+// In case DOMContentLoaded already fired
+if (document.readyState !== 'loading') {
+renderAllSites();
+initCounters();
+}
+</script>
+</body>
+</html>
